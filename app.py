@@ -4,7 +4,7 @@ Academic Internal Assessment Project
 
 Tech stack:
 - Streamlit: user interface
-- LangChain + xAI ChatXAI: natural-language traffic scenario parsing
+- LangChain + Groq ChatGroq: natural-language traffic scenario parsing
 - scikit-fuzzy: genuine fuzzy inference system
 - NumPy: numerical operations
 
@@ -12,9 +12,9 @@ Run:
     streamlit run app.py
 
 Environment:
-    XAI_API_KEY=<your xAI API key>
+    GROQ_API_KEY=<your xAI API key>
 
-For Streamlit Community Cloud, add XAI_API_KEY under:
+For Streamlit Community Cloud, add GROQ_API_KEY under:
     App -> Settings -> Secrets
 """
 
@@ -119,7 +119,7 @@ def clamp_metric(value: Any, low: float, high: float) -> float:
 
 def parse_traffic_scenario(scenario: str) -> Tuple[float, float]:
     """
-    Use Grok through LangChain to extract:
+    Use Groq through LangChain to extract:
       - vehicle_density: 0-10
       - waiting_time: 0-10 minutes
 
@@ -181,7 +181,7 @@ def generate_explanation(
     green_duration: float,
     source: str,
 ) -> str:
-    """Ask Grok for a controller-facing explanation of the fuzzy result."""
+    """Ask Groq for a controller-facing explanation of the fuzzy result."""
     llm = create_llm()
 
     prompt = f"""
@@ -361,7 +361,7 @@ def run_fuzzy_controller(
 # ---------------------------------------------------------------------------
 st.title("🚦 Smart Traffic Signal Timing Controller")
 st.caption(
-    "Natural-language traffic analysis → Grok/LangChain → "
+    "Natural-language traffic analysis → Groq/LangChain → "
     "Fuzzy Inference System → Green-light timing"
 )
 
@@ -386,9 +386,9 @@ with st.sidebar:
     st.divider()
     st.subheader("API Key")
     if get_groq_key():
-        st.success("XAI_API_KEY detected")
+        st.success("GROQ_API_KEY detected")
     else:
-        st.warning("XAI_API_KEY not detected")
+        st.warning("GROQ_API_KEY not detected")
 
 
 scenario = st.text_area(
@@ -398,7 +398,7 @@ scenario = st.text_area(
         "4 minutes, no emergency."
     ),
     height=120,
-    help="Describe the traffic situation naturally. Grok will extract density and waiting time.",
+    help="Describe the traffic situation naturally. Groq will extract density and waiting time.",
 )
 
 st.subheader("Manual Override")
@@ -454,19 +454,19 @@ if calculate:
     else:
         if not get_groq_key():
             st.error(
-                "XAI_API_KEY is required for natural-language parsing. "
+                "GROQ_API_KEY is required for natural-language parsing. "
                 "Add it to your environment or Streamlit Secrets, or enable "
                 "Manual Override and use the sliders."
             )
             st.stop()
 
         try:
-            with st.spinner("Grok is interpreting the traffic scenario..."):
+            with st.spinner("Groq is interpreting the traffic scenario..."):
                 density, waiting = parse_traffic_scenario(scenario)
 
-            source = "Grok natural-language extraction"
+            source = "Groq natural-language extraction"
             ai_parse_message = (
-                "Grok extracted the traffic metrics from the scenario."
+                "Groq extracted the traffic metrics from the scenario."
             )
         except Exception as exc:
             st.error(f"AI parsing failed: {exc}")
@@ -507,7 +507,7 @@ if calculate:
     )
 
     # ---------------------------------------------------------------
-    # Step 4: conversational Grok explanation
+    # Step 4: conversational Groq explanation
     # ---------------------------------------------------------------
     if get_groq_key():
         try:
@@ -528,7 +528,7 @@ if calculate:
             )
     else:
         st.info(
-            "Add XAI_API_KEY to enable the conversational explanation."
+            "Add GROQ_API_KEY to enable the conversational explanation."
         )
 
     # ---------------------------------------------------------------
@@ -586,8 +586,8 @@ with st.expander("📚 How the system works"):
 1. **Natural-language input**  
    The user describes a traffic condition in ordinary language.
 
-2. **LLM extraction using LangChain + xAI**  
-   Grok extracts:
+2. **LLM extraction using LangChain + Groq**  
+   Groq extracts:
    - `vehicle_density` → 0 to 10
    - `waiting_time` → 0 to 10 minutes
 
@@ -604,7 +604,7 @@ with st.expander("📚 How the system works"):
    green-light duration using **centroid defuzzification**.
 
 6. **Conversational explanation**  
-   Grok explains the calculated timing in controller-friendly language.
+   Groq explains the calculated timing in controller-friendly language.
 
 ### Example rule
 
